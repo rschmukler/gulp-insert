@@ -20,5 +20,13 @@
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/rschmukler/gulp-insert/issues"
+  },
+  "devDependencies": {
+    "mocha": "~1.17.0",
+    "expect.js": "~0.2.0",
+    "gulp-util": "~2.2.12"
+  },
+  "dependencies": {
+    "map-stream": "~0.1.0"
   }
 }
