@@ -1,6 +1,6 @@
 {
   "name": "gulp-insert",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Append or Prepend a string with gulp",
   "main": "index.js",
   "scripts": {
