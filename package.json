@@ -12,12 +12,14 @@
   },
   "keywords": [
     "gulp",
+    "gulpplugin",
     "append",
     "insert",
     "prepend"
   ],
   "author": "Ryan Schmukler <ryan@slingingcode.com> (http://slingingcode.com/)",
   "license": "MIT",
+  "homepage": "https://github.com/rschmukler/gulp-insert/",
   "bugs": {
     "url": "https://github.com/rschmukler/gulp-insert/issues"
   },
