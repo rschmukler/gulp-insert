@@ -5,6 +5,9 @@ exports.prepend = function(string) {
   var prependedBuffer = new Buffer(string);
 
   stream._transform = function(file, unused, cb) {
+    if(file.isNull()) {
+      return cb(null, file);
+    }
     file.contents = Buffer.concat([prependedBuffer, file.contents],
       prependedBuffer.length + file.contents.length);
     cb(null, file);
@@ -18,6 +21,9 @@ exports.append = function(string) {
   var appendedBuffer = new Buffer(string);
 
   stream._transform = function(file, unused, cb) {
+    if(file.isNull()) {
+      return cb(null, file);
+    }
     file.contents = Buffer.concat([file.contents, appendedBuffer],
       appendedBuffer.length + file.contents.length);
     cb(null, file);
@@ -32,6 +38,9 @@ exports.wrap = function(begin, end) {
   var appendedBuffer = new Buffer(end);
 
   stream._transform = function(file, unused, cb) {
+    if(file.isNull()) {
+      return cb(null, file);
+    }
     file.contents = Buffer.concat([prependedBuffer, file.contents, appendedBuffer],
       appendedBuffer.length + file.contents.length + prependedBuffer.length);
     cb(null, file);
@@ -44,6 +53,9 @@ exports.transform = function(fn) {
   var stream = new Stream.Transform({objectMode: true});
 
   stream._transform = function(file, unused, cb) {
+    if(file.isNull()) {
+      return cb(null, file);
+    }
     file.contents = new Buffer(fn(file.contents.toString()));
     cb(null, file);
   };

@@ -3,6 +3,25 @@ var insert = require('../'),
     File = require('gulp-util').File;
 
 describe('Append', function() {
+  it('let pass null files through', function(done) {
+    var stream = insert.append(' world');
+
+    var fakeFile = new File({
+      cwd: __dirname,
+      base: __dirname + 'test',
+      path: __dirname + 'test/file.js',
+      contents: null
+    });
+
+    stream.on('data', function(file) {
+      expect(file.contents).to.be.equal(null);
+      done();
+    });
+
+    stream.write(fakeFile);
+    stream.end();
+  });
+
   it('appends the string onto the file', function(done) {
     var stream = insert.append(' world');
 
@@ -25,6 +44,25 @@ describe('Append', function() {
 });
 
 describe('Prepend', function() {
+  it('let pass null files through', function(done) {
+    var stream = insert.prepend('Hello');
+
+    var fakeFile = new File({
+      cwd: __dirname,
+      base: __dirname + 'test',
+      path: __dirname + 'test/file.js',
+      contents: null
+    });
+
+    stream.on('data', function(file) {
+      expect(file.contents).to.be.equal(null);
+      done();
+    });
+
+    stream.write(fakeFile);
+    stream.end();
+  });
+
   it('prepends the string onto the file', function(done) {
     var stream = insert.prepend('Hello');
 
@@ -46,6 +84,25 @@ describe('Prepend', function() {
 });
 
 describe('Wrap', function() {
+  it('let pass null files through', function(done) {
+    var stream = insert.wrap('Hello ', '!');
+
+    var fakeFile = new File({
+      cwd: __dirname,
+      base: __dirname + 'test',
+      path: __dirname + 'test/file.js',
+      contents: null
+    });
+
+    stream.on('data', function(file) {
+      expect(file.contents).to.be.equal(null);
+      done();
+    });
+
+    stream.write(fakeFile);
+    stream.end();
+  });
+
   it('prepends the first argument and appends the second argument', function(done) {
     var stream = insert.wrap('Hello ', '!');
 
@@ -67,6 +124,28 @@ describe('Wrap', function() {
 });
 
 describe('Transform', function() {
+  it('let pass null files through', function(done) {
+    var stream = insert.transform(function(data) {
+      return data.toUpperCase();
+    });
+
+    var fakeFile = new File({
+      cwd: __dirname,
+      base: __dirname + 'test',
+      path: __dirname + 'test/file.js',
+      contents: null
+    });
+
+    stream.on('data', function(file) {
+      expect(file.contents).to.be.equal(null);
+      done();
+    });
+
+    stream.write(fakeFile);
+    stream.end();
+
+  });
+
   it('applys the function to the string', function(done) {
     var stream = insert.transform(function(data) {
       return data.toUpperCase();
