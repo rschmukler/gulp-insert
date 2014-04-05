@@ -26,7 +26,9 @@
   "devDependencies": {
     "mocha": "~1.17.0",
     "expect.js": "~0.2.0",
-    "gulp-util": "~2.2.12"
+    "gulp-util": "~2.2.12",
+    "readable-stream": "^1.0.26-4",
+    "chai": "^1.9.1"
   },
   "dependencies": {
     "map-stream": "~0.1.0"

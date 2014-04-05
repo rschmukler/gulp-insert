@@ -1,5 +1,5 @@
 var insert = require('../'),
-    expect = require('expect.js'),
+    expect = require('chai').expect,
     File = require('gulp-util').File;
 
 describe('Append', function() {
@@ -14,7 +14,7 @@ describe('Append', function() {
     });
 
     stream.on('data', function(file) {
-      expect(file.contents.toString()).to.be('Hello world');
+      expect(file.contents.toString()).to.be.equal('Hello world');
       done();
     });
 
@@ -36,7 +36,7 @@ describe('Prepend', function() {
     });
 
     stream.on('data', function(file) {
-      expect(file.contents.toString()).to.be('Hello world');
+      expect(file.contents.toString()).to.be.equal('Hello world');
       done();
     });
 
@@ -57,7 +57,7 @@ describe('Wrap', function() {
     });
 
     stream.on('data', function(file) {
-      expect(file.contents.toString()).to.be('Hello world!');
+      expect(file.contents.toString()).to.be.equal('Hello world!');
       done();
     });
 
@@ -80,7 +80,7 @@ describe('Transform', function() {
     });
 
     stream.on('data', function(file) {
-      expect(file.contents.toString()).to.be('HELLO WORLD');
+      expect(file.contents.toString()).to.be.equal('HELLO WORLD');
       done();
     });
 

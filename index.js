@@ -1,29 +1,53 @@
-var streamMap = require('map-stream');
+var Stream = require('readable-stream');
 
 exports.prepend = function(string) {
-  return streamMap(function(file, cb) {
-    file.contents = new Buffer(string + file.contents.toString());
+  var stream = new Stream.Transform({objectMode: true});
+  var prependedBuffer = new Buffer(string);
+
+  stream._transform = function(file, unused, cb) {
+    file.contents = Buffer.concat([prependedBuffer, file.contents],
+      prependedBuffer.length + file.contents.length);
     cb(null, file);
-  });
+  };
+
+  return stream;
 };
 
 exports.append = function(string) {
-  return streamMap(function(file, cb) {
-    file.contents = new Buffer(file.contents.toString() + string);
+  var stream = new Stream.Transform({objectMode: true});
+  var appendedBuffer = new Buffer(string);
+
+  stream._transform = function(file, unused, cb) {
+    file.contents = Buffer.concat([file.contents, appendedBuffer],
+      appendedBuffer.length + file.contents.length);
     cb(null, file);
-  });
+  };
+
+  return stream;
 };
 
 exports.wrap = function(begin, end) {
-  return streamMap(function(file, cb) {
-    file.contents = new Buffer(begin + file.contents.toString() + end);
+  var stream = new Stream.Transform({objectMode: true});
+  var prependedBuffer = new Buffer(begin);
+  var appendedBuffer = new Buffer(end);
+
+  stream._transform = function(file, unused, cb) {
+    file.contents = Buffer.concat([prependedBuffer, file.contents, appendedBuffer],
+      appendedBuffer.length + file.contents.length + prependedBuffer.length);
     cb(null, file);
-  });
+  };
+
+  return stream;
 };
 
 exports.transform = function(fn) {
-  return streamMap(function(file, cb) {
+  var stream = new Stream.Transform({objectMode: true});
+
+  stream._transform = function(file, unused, cb) {
     file.contents = new Buffer(fn(file.contents.toString()));
     cb(null, file);
-  });
+  };
+
+  return stream;
 };
+
