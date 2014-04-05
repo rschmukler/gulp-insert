@@ -1,4 +1,15 @@
 var Stream = require('readable-stream');
+var StreamQueue = require('streamqueue');
+
+// Helper
+function getStreamFromBuffer(string) {
+  var stream = new Stream.Readable();
+  stream._read = function() {
+    stream.push(new Buffer(string));
+    stream._read = stream.push.bind(stream, null);
+  };
+  return stream;
+}
 
 exports.prepend = function(string) {
   var stream = new Stream.Transform({objectMode: true});
@@ -6,6 +17,13 @@ exports.prepend = function(string) {
 
   stream._transform = function(file, unused, cb) {
     if(file.isNull()) {
+      return cb(null, file);
+    }
+    if(file.isStream()) {
+      file.contents = new StreamQueue(
+        getStreamFromBuffer(prependedBuffer),
+        file.contents
+      );
       return cb(null, file);
     }
     file.contents = Buffer.concat([prependedBuffer, file.contents],
@@ -22,6 +40,13 @@ exports.append = function(string) {
 
   stream._transform = function(file, unused, cb) {
     if(file.isNull()) {
+      return cb(null, file);
+    }
+    if(file.isStream()) {
+      file.contents = new StreamQueue(
+        file.contents,
+        getStreamFromBuffer(appendedBuffer)
+      );
       return cb(null, file);
     }
     file.contents = Buffer.concat([file.contents, appendedBuffer],
@@ -41,6 +66,14 @@ exports.wrap = function(begin, end) {
     if(file.isNull()) {
       return cb(null, file);
     }
+    if(file.isStream()) {
+      file.contents = new StreamQueue(
+        getStreamFromBuffer(prependedBuffer),
+        file.contents,
+        getStreamFromBuffer(appendedBuffer)
+      );
+      return cb(null, file);
+    }
     file.contents = Buffer.concat([prependedBuffer, file.contents, appendedBuffer],
       appendedBuffer.length + file.contents.length + prependedBuffer.length);
     cb(null, file);
@@ -54,6 +87,13 @@ exports.transform = function(fn) {
 
   stream._transform = function(file, unused, cb) {
     if(file.isNull()) {
+      return cb(null, file);
+    }
+    if(file.isStream()) {
+      file.contents = file.contents.pipe(new Stream.Transform());
+      file.contents._transform = function(chunk, encoding, cb) {
+        cb(null, new Buffer(fn(chunk.toString())))
+      };
       return cb(null, file);
     }
     file.contents = new Buffer(fn(file.contents.toString()));
