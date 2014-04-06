@@ -1,4 +1,10 @@
 
+0.3.0 / 2014-04-06 
+==================
+
+ * Add support for streams (@nfroidure)
+ * Add support for passing null files through
+
 0.2.0 / 2014-02-02 
 ==================
 
