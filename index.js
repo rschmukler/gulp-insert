@@ -11,14 +11,23 @@ function getStreamFromBuffer(string) {
   return stream;
 }
 
-exports.prepend = function(string) {
+// Get string to insert
+function getInsertString(arg, file) {
+  if(typeof arg === 'function') {
+    return arg(file);
+  } else {
+    return arg;
+  }
+}
+
+exports.prepend = function(prepend) {
   var stream = new Stream.Transform({objectMode: true});
-  var prependedBuffer = new Buffer(string);
 
   stream._transform = function(file, unused, cb) {
     if(file.isNull()) {
       return cb(null, file);
     }
+    var prependedBuffer = new Buffer(getInsertString(prepend, file));
     if(file.isStream()) {
       file.contents = new StreamQueue(
         getStreamFromBuffer(prependedBuffer),
@@ -34,14 +43,14 @@ exports.prepend = function(string) {
   return stream;
 };
 
-exports.append = function(string) {
+exports.append = function(append) {
   var stream = new Stream.Transform({objectMode: true});
-  var appendedBuffer = new Buffer(string);
 
   stream._transform = function(file, unused, cb) {
     if(file.isNull()) {
       return cb(null, file);
     }
+    var appendedBuffer = new Buffer(getInsertString(append, file));
     if(file.isStream()) {
       file.contents = new StreamQueue(
         file.contents,
@@ -59,13 +68,13 @@ exports.append = function(string) {
 
 exports.wrap = function(begin, end) {
   var stream = new Stream.Transform({objectMode: true});
-  var prependedBuffer = new Buffer(begin);
-  var appendedBuffer = new Buffer(end);
 
   stream._transform = function(file, unused, cb) {
     if(file.isNull()) {
       return cb(null, file);
     }
+    var prependedBuffer = new Buffer(getInsertString(begin, file));
+    var appendedBuffer = new Buffer(getInsertString(end, file));
     if(file.isStream()) {
       file.contents = new StreamQueue(
         getStreamFromBuffer(prependedBuffer),

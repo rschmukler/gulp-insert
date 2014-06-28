@@ -52,6 +52,27 @@ describe('Append', function() {
     stream.end();
   });
 
+  it('appends the file.path onto the file in buffer mode', function(done) {
+    var stream = insert.append(function(file) {
+      return file.path;
+    });
+
+    var fakeFile = new File({
+      cwd: __dirname,
+      base: __dirname + 'test',
+      path: __dirname + 'test/file.js',
+      contents: new Buffer('Hello')
+    });
+
+    stream.on('data', function(file) {
+      expect(file.contents.toString()).to.be.equal('Hello' + file.path);
+      done();
+    });
+
+    stream.write(fakeFile);
+    stream.end();
+  });
+
   it('appends the string onto the file in stream mode', function(done) {
     var stream = insert.append(' world');
 
@@ -118,6 +139,27 @@ describe('Prepend', function() {
     stream.end();
   });
 
+  it('prepends the file.path onto the file in buffer mode', function(done) {
+    var stream = insert.prepend(function(file) {
+      return file.path;
+    });
+
+    var fakeFile = new File({
+      cwd: __dirname,
+      base: __dirname + 'test',
+      path: __dirname + 'test/file.js',
+      contents: new Buffer(' world')
+    });
+
+    stream.on('data', function(file) {
+      expect(file.contents.toString()).to.be.equal(file.path + ' world');
+      done();
+    });
+
+    stream.write(fakeFile);
+    stream.end();
+  });
+
   it('prepends the string onto the file in stream mode', function(done) {
     var stream = insert.prepend('Hello');
 
@@ -176,6 +218,29 @@ describe('Wrap', function() {
 
     stream.on('data', function(file) {
       expect(file.contents.toString()).to.be.equal('Hello world!');
+      done();
+    });
+
+    stream.write(fakeFile);
+    stream.end();
+  });
+
+  it('prepends file.base and file.path in buffer mode', function(done) {
+    var stream = insert.wrap(function(file) {
+      return file.base;
+    }, function(file) {
+      return file.path;
+    });
+
+    var fakeFile = new File({
+      cwd: __dirname,
+      base: __dirname + 'test',
+      path: __dirname + 'test/file.js',
+      contents: new Buffer('world')
+    });
+
+    stream.on('data', function(file) {
+      expect(file.contents.toString()).to.be.equal(file.base + 'world' + file.path);
       done();
     });
 
