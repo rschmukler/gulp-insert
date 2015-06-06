@@ -22,7 +22,7 @@ Appends a string onto the contents.
 
 ## Prepend
 
-Appends a string onto the contents.
+Prepends a string onto the contents.
 
 ```js
 .pipe(insert.prepend('Hello')); // Prepends 'Hello' to the contents of every file
