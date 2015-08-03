@@ -105,7 +105,7 @@ exports.transform = function(fn) {
       };
       return cb(null, file);
     }
-    file.contents = new Buffer(fn(file.contents.toString()));
+    file.contents = new Buffer(fn(file.contents.toString(), file));
     cb(null, file);
   };
 
