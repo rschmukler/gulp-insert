@@ -40,7 +40,19 @@ Wraps the contents with two strings.
 Calls a function with the contents of the file.
 
 ```js
-.pipe(insert.transform(function(contents) {
+.pipe(insert.transform(function(contents, file) {
   return contents.toUpperCase();
 }));
 ```
+
+Transform has access to the underlying vinyl file. The following code adds a '//' comment with the full file name before the actual content.
+
+```js
+.pipe(insert.transform(function(contents, file) {
+
+	var comment = '// local file: ' + file.path + '\n';
+	return comment + contents;
+}));
+```
+
+See https://github.com/wearefractal/vinyl for docmentation on the 'file' parameter.
