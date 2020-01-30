@@ -91,40 +91,37 @@ exports.wrap = function(begin, end) {
   return stream;
 };
 
-exports.transform = function (fn, s) {
-  var sync = s || false;
+exports.transform = function (fn, async) {
+  if (async === undefined) async = false;
   var stream = new Stream.Transform({ objectMode: true });
   var isPromiseSupported = typeof Promise !== 'undefined';
 
-  stream._transform = function(file, unused, cb) {
-    if(file.isNull()) {
+  stream._transform = function (file, unused, cb) {
+    if (file.isNull()) {
       return cb(null, file);
     }
-    if(file.isStream()) {
+    if (file.isStream()) {
       file.contents = file.contents.pipe(new Stream.Transform());
       file.contents._transform = function (chunk, encoding, cb) {
-        if (sync) {
-          cb(null, new Buffer(fn(chunk.toString(), file)));
-        } else {
+        if (async) {
           var done = function (res) {
-            cb(null, new Buffer(res));
+            cb(null, Buffer.from(res));
           }
 
           var result = fn(chunk.toString(), file, done);
           if (isPromiseSupported && result instanceof Promise) {
             result.then(done);
           }
+        } else {
+          cb(null, Buffer.from(fn(chunk.toString(), file)));
         }
       };
       return cb(null, file);
     }
 
-    if (sync) {
-      file.contents = new Buffer(fn(file.contents.toString(), file));
-      cb(null, file);
-    } else {
+    if (async) {
       var done = function (res) {
-        file.contents = new Buffer(res);
+        file.contents = Buffer.from(res);
         cb(null, file);
       }
 
@@ -132,6 +129,9 @@ exports.transform = function (fn, s) {
       if (isPromiseSupported && result instanceof Promise) {
         result.then(done);
       }
+    } else {
+      file.contents = Buffer.from(fn(file.contents.toString(), file));
+      cb(null, file);
     }
   };
 
