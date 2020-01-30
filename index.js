@@ -91,8 +91,8 @@ exports.wrap = function(begin, end) {
   return stream;
 };
 
-exports.transform = function (fn, async) {
-  if (async === undefined) async = false;
+exports.transform = function (fn, isAsync) {
+  if (isAsync === undefined) isAsync = false;
   var stream = new Stream.Transform({ objectMode: true });
   var isPromiseSupported = typeof Promise !== 'undefined';
 
@@ -103,7 +103,7 @@ exports.transform = function (fn, async) {
     if (file.isStream()) {
       file.contents = file.contents.pipe(new Stream.Transform());
       file.contents._transform = function (chunk, encoding, cb) {
-        if (async) {
+        if (isAsync) {
           var done = function (res) {
             cb(null, Buffer.from(res));
           }
@@ -119,7 +119,7 @@ exports.transform = function (fn, async) {
       return cb(null, file);
     }
 
-    if (async) {
+    if (isAsync) {
       var done = function (res) {
         file.contents = Buffer.from(res);
         cb(null, file);
