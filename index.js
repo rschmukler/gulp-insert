@@ -128,7 +128,7 @@ exports.transform = function (fn, s) {
         cb(null, file);
       }
 
-      var result = fn(chunk.toString(), file, done);
+      var result = fn(file.contents.toString(), file, done);
       if (isPromiseSupported && result instanceof Promise) {
         result.then(done);
       }
