@@ -55,4 +55,34 @@ Transform has access to the underlying vinyl file. The following code adds a '//
 }));
 ```
 
+### Transform Async
+
+Calls async transform with callback or promise
+
+```js
+.pipe(insert.transform(function(contents, file, done) {
+	setTimeout(function () {
+		done(contents.toUpperCase());
+	}, 0);
+}, true));
+```
+
+And with `Promise`
+
+```js
+.pipe(insert.transform(function(contents, file) {
+	return new Promise(function (res) {
+		setTimeout(function () {
+			res(data.toUpperCase());
+		}, 0);
+	});
+}, true));
+
+.pipe(insert.transform(async function(contents, file) {
+	await sleep(0);
+
+	return contents.toUpperCase();
+}, true));
+```
+
 See https://github.com/wearefractal/vinyl for docmentation on the 'file' parameter.

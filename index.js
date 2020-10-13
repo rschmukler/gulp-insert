@@ -91,22 +91,48 @@ exports.wrap = function(begin, end) {
   return stream;
 };
 
-exports.transform = function(fn) {
-  var stream = new Stream.Transform({objectMode: true});
+exports.transform = function (fn, isAsync) {
+  if (isAsync === undefined) isAsync = false;
+  var stream = new Stream.Transform({ objectMode: true });
+  var isPromiseSupported = typeof Promise !== 'undefined';
 
-  stream._transform = function(file, unused, cb) {
-    if(file.isNull()) {
+  stream._transform = function (file, unused, cb) {
+    if (file.isNull()) {
       return cb(null, file);
     }
-    if(file.isStream()) {
+    if (file.isStream()) {
       file.contents = file.contents.pipe(new Stream.Transform());
-      file.contents._transform = function(chunk, encoding, cb) {
-        cb(null, new Buffer(fn(chunk.toString(), file)))
+      file.contents._transform = function (chunk, encoding, cb) {
+        if (isAsync) {
+          var done = function (res) {
+            cb(null, Buffer.from(res));
+          }
+
+          var result = fn(chunk.toString(), file, done);
+          if (isPromiseSupported && result instanceof Promise) {
+            result.then(done);
+          }
+        } else {
+          cb(null, Buffer.from(fn(chunk.toString(), file)));
+        }
       };
       return cb(null, file);
     }
-    file.contents = new Buffer(fn(file.contents.toString(), file));
-    cb(null, file);
+
+    if (isAsync) {
+      var done = function (res) {
+        file.contents = Buffer.from(res);
+        cb(null, file);
+      }
+
+      var result = fn(file.contents.toString(), file, done);
+      if (isPromiseSupported && result instanceof Promise) {
+        result.then(done);
+      }
+    } else {
+      file.contents = Buffer.from(fn(file.contents.toString(), file));
+      cb(null, file);
+    }
   };
 
   return stream;

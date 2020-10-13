@@ -316,7 +316,6 @@ describe('Transform', function() {
 
     stream.write(fakeFile);
     stream.end();
-
   });
 
   it('applys the function to the string in stream mode', function(done) {
@@ -416,6 +415,122 @@ describe('Transform', function() {
         expect(contents[3]).to.be.equal('hello world');
         done();
       });
+    });
+
+    stream.write(fakeFile);
+    stream.end();
+  });
+
+  it('passes async prop in stream mode', function (done) {
+    var stream = insert.transform(function (data, file, localDone) {
+      setTimeout(function () {
+        localDone(data.toUpperCase());
+      }, 0);
+    }, true);
+
+    var fakeFile = new File({
+      cwd: __dirname,
+      base: __dirname + 'test',
+      path: __dirname + 'test/file.js',
+      contents: new Buffer('hello world')
+    });
+
+    stream.on('data', function (file) {
+      expect(file.contents.toString()).to.be.equal('HELLO WORLD');
+      done();
+    });
+
+    stream.write(fakeFile);
+    stream.end();
+  });
+
+  it('passes async prop in buffer mode', function (done) {
+    var stream = insert.transform(function (data, file, localDone) {
+      setTimeout(function () {
+        localDone(data.toUpperCase());
+      }, 0);
+    }, true);
+
+    var fakeFile = new File({
+      cwd: __dirname,
+      base: __dirname + 'test',
+      path: __dirname + 'test/file.js',
+      contents: getStreamFromBuffer(new Buffer('hello world'))
+    });
+
+    stream.on('data', function (file) {
+      var buffers = [];
+      file.contents.on('data', function (buf) {
+        buffers.push(buf);
+      });
+      file.contents.on('end', function () {
+        expect(Buffer.concat(buffers).toString()).to.be.equal('HELLO WORLD');
+        done();
+      });
+    });
+
+    stream.write(fakeFile);
+    stream.end();
+  });
+
+  var isPromiseDefined = typeof Promise !== 'undefined';
+
+  it('passes async prop in stream mode and use promise if exist promise', function (done) {
+    var stream = insert.transform(function (data, file, localDone) {
+      if (isPromiseDefined) {
+        return new Promise(function (res) {
+          setTimeout(function () {
+            res(data.toUpperCase());
+          }, 0);
+        });
+      } else {
+        setTimeout(function () {
+          localDone(data.toUpperCase());
+        }, 0);
+      }
+    }, true);
+
+    var fakeFile = new File({
+      cwd: __dirname,
+      base: __dirname + 'test',
+      path: __dirname + 'test/file.js',
+      contents: new Buffer('hello world')
+    });
+
+    stream.on('data', function (file) {
+      expect(file.contents.toString()).to.be.equal('HELLO WORLD');
+      done();
+    });
+
+    stream.write(fakeFile);
+    stream.end();
+  });
+
+  it('passes async prop in buffer mode and use promise if exist promise', function (done) {
+    var stream = insert.transform(function (data, file, localDone) {
+      if (isPromiseDefined) {
+        return new Promise(function (res) {
+          setTimeout(function () {
+            res(data.toUpperCase());
+          }, 0);
+        });
+      } else {
+        setTimeout(function () {
+          localDone(data.toUpperCase());
+        }, 0);
+      }
+    }, true);
+
+    var fakeFile = new File({
+      cwd: __dirname,
+      base: __dirname + 'test',
+      path: __dirname + 'test/file.js',
+      contents: new Buffer('hello world')
+    });
+
+    stream.on('data', function (file) {
+      expect(file.contents.toString()).to.be.equal('HELLO WORLD');
+      done();
     });
 
     stream.write(fakeFile);
